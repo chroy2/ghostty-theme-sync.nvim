@@ -48,6 +48,6 @@ The following options are the default:
 ```
 
 ### Changes
-Removed ghostty txt file and translastion table for auto translastion
+Removed ghostty txt file and translation table for auto mapping
 > [!WARNING]
-> Assumes any themes you use can be normalized to an alphanumeric version for auto-mapping
+> Assumes any themes name you use can be normalized to an alphanumeric version for auto-mapping
