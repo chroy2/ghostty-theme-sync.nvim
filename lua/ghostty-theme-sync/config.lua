@@ -3,6 +3,7 @@ local M = {}
 --- User's configuration
 --- @class GhosttySyncConfig
 --- @field ghostty_config_path string: Path to your ghostty config file
+--- @field ghostty_themes_path string: Path to your ghostty theme directory
 --- @field persist_nvim_theme boolean: Persist the theme in the nvim config file
 --- @field nvim_config_path string: Path to the nvim config file to persist the theme
 
@@ -12,6 +13,8 @@ local M = {}
 local defaults = {
 	-- Path to your ghostty config file
 	ghostty_config_path = "~/.config/ghostty/config",
+	-- Path to ghostty themes directory
+	ghostty_themes_path = "/usr/share/ghostty/themes/",
 	persist_nvim_theme = false,
 	nvim_config_path = "",
 }
@@ -26,6 +29,10 @@ function M.setup(opts)
 
 	if M.options.ghostty_config_path == nil then
 		error("You must define a ghostty config path (make sure the file exists)")
+	end
+
+	if M.options.ghostty_themes_path == nil then
+		error("You must define a ghostty theme path (make sure the dir exists)")
 	end
 
 	if M.options.persist_nvim_theme and (M.options.nvim_config_path == nil or M.options.nvim_config_path == "") then

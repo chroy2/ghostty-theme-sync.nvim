@@ -1,5 +1,7 @@
 # ghostty-theme-sync.nvim
 
+### See Forked for more info
+
 A Neovim plugin allows you to synchronize themes between Neovim and [Ghostty](https://ghostty.org/), ensuring a consistent look between terminal and editor.
 
 ### Installation
@@ -7,7 +9,7 @@ Use your favorite plugin manager, for example with [lazy.nvim](https://github.co
 
 ```lua
 {
-  'landerson02/ghostty-theme-sync.nvim',
+  'chroy2/ghostty-theme-sync.nvim',
   --- @type GhosttySyncConfig
   opts = {
     -- Add your configuration here
@@ -34,6 +36,9 @@ The following options are the default:
 {
   -- Path to your Ghostty config file
   ghostty_config_path = "~/.config/ghostty/config",
+
+  -- Path to your Ghostty themes dir. Used for auto mapping from ghostty themes to nvim themes
+  ghostty_themes_path = "/usr/share/ghostty/themes/",
 
   -- If you want to keep the nvim colorscheme change (like the ghostty change),
   -- set this to true and point the config path to your config file that contains

@@ -1,6 +1,5 @@
 local M = {}
 local config = require("ghostty-theme-sync.config")
-local translations = require("ghostty-theme-sync.translations")
 
 --- Change nvim colorscheme
 --- @param colorscheme string: The colorscheme to set in Neovim
@@ -50,9 +49,6 @@ end
 local function set_ghostty_colorscheme(colorscheme)
 	local config_path = vim.fn.expand(config.options.ghostty_config_path)
 
-	-- Change colorscheme to ghostty format
-	colorscheme = translations.nvim_to_ghostty[colorscheme] or colorscheme
-
 	-- Read in config and update theme line
 	local lines = {}
 	for line in io.lines(config_path) do
@@ -92,10 +88,16 @@ end
 ---@return table List of colorschemes
 local function get_ghostty_colorschemes()
 	local colorschemes = {}
-	local path = debug.getinfo(1, "S").source:match("@(.*)/") .. "/../../ghostty_themes.txt"
+	if not config.options.ghostty_themes_path then
+		error("Please set ghostty themes folder path")
+	end
 
-	for line in io.lines(path) do
-		table.insert(colorschemes, line)
+	-- get theme path set by user
+	local themes_path = vim.fn.expand(config.options.ghostty_themes_path)
+	local files = vim.fn.readdir(themes_path)
+
+	for _, file in ipairs(files) do
+		table.insert(colorschemes, file)
 	end
 
 	return colorschemes
@@ -106,21 +108,29 @@ end
 function M.get_overlap()
 	local nvim_colorschemes = get_nvim_colorschemes()
 	local ghostty_colorschemes = get_ghostty_colorschemes()
-
 	-- Create a set of ghostty_colorschemes
 	local ghostty_colorschemes_set = {}
-	for _, value in ipairs(ghostty_colorschemes) do
-		ghostty_colorschemes_set[value] = true
+	for _, ghostty_value in ipairs(ghostty_colorschemes) do
+		ghostty_colorschemes_set[ghostty_value] = true
 	end
 
 	local overlap = {}
 
-	for _, value in ipairs(nvim_colorschemes) do
-		-- Map nvim to ghostty in the table
-		local translated = translations.nvim_to_ghostty[value] or value
+	for _, nvim_value in ipairs(nvim_colorschemes) do
+		-- Remove -, _ (Add more as needed)
+		local derived_ghostty_value = nvim_value
+		local to_replace = { "-", "_" }
+		for _, char in ipairs(to_replace) do
+			derived_ghostty_value = string.gsub(derived_ghostty_value, char, " ")
+		end
+		-- Capitalize all characters at beginning of word
+		derived_ghostty_value = derived_ghostty_value:gsub("(%a)([%w_']*)", function(first, rest)
+			return first:upper() .. rest
+		end)
+
 		-- Check if ghostty has the colorscheme
-		if ghostty_colorschemes_set[translated] then
-			table.insert(overlap, value)
+		if ghostty_colorschemes_set[derived_ghostty_value] then
+			table.insert(overlap, { ghostty = derived_ghostty_value, nvim = nvim_value })
 		end
 	end
 
@@ -128,20 +138,25 @@ function M.get_overlap()
 end
 
 --- Set the colorscheme in Neovim and Ghostty
---- @param colorscheme string: The colorscheme to set in Neovim and Ghostty
-function M.set_colorscheme(colorscheme)
-	set_nvim_colorscheme(colorscheme)
+--- @param colorschemes table: The colorscheme to set in Neovim and Ghostty
+function M.set_colorscheme(colorschemes)
+	set_nvim_colorscheme(colorschemes.nvim)
 	if config.options.persist_nvim_theme then
-		persist_nvim_colorscheme(colorscheme)
+		persist_nvim_colorscheme(colorschemes.nvim)
 	end
-	set_ghostty_colorscheme(colorscheme)
+	set_ghostty_colorscheme(colorschemes.ghostty)
 end
 
 --- Opens a select menu to pick a theme to sync out of the valid options
 function M.pick_theme()
 	local themes = M.get_overlap()
-
-	vim.ui.select(themes, { prompt = "Select a theme to sync:" }, function(selected)
+	print(themes)
+	vim.ui.select(themes, {
+		prompt = "Select a theme to sync:",
+		format_item = function(item)
+			return item.ghostty
+		end,
+	}, function(selected)
 		if selected then
 			M.set_colorscheme(selected)
 		end
