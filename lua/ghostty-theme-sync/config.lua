@@ -1,5 +1,8 @@
 local M = {}
 
+local uname = (vim.uv or vim.loop).os_uname()
+local is_mac = uname.sysname == "Darwin"
+
 --- User's configuration
 --- @class GhosttySyncConfig
 --- @field ghostty_config_path string: Path to your ghostty config file
@@ -14,7 +17,8 @@ local defaults = {
 	-- Path to your ghostty config file
 	ghostty_config_path = "~/.config/ghostty/config",
 	-- Path to ghostty themes directory
-	ghostty_themes_path = "/usr/share/ghostty/themes/",
+	ghostty_themes_path = is_mac and "/Applications/Ghostty.app/Contents/Resources/ghostty/themes/"
+		or "/usr/share/ghostty/themes/",
 	persist_nvim_theme = false,
 	nvim_config_path = "",
 }
