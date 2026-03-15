@@ -1,6 +1,7 @@
 # ghostty-theme-sync.nvim
 
 ### See Fork for more info
+Original Author: [landerson02](https://github.com/landerson02)
 
 A Neovim plugin allows you to synchronize themes between Neovim and [Ghostty](https://ghostty.org/), ensuring a consistent look between terminal and editor.
 
