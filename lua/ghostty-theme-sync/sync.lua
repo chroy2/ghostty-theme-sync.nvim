@@ -104,36 +104,37 @@ local function get_ghostty_colorschemes()
 end
 
 --- Get the colorschemes that exist in both Neovim and Ghostty
+--- builds an alphanumeric mapping table off of ghostty themes
+--- i.e:
+--- { githubdarkdefault = {
+---         ghostty = "GitHub Dark Default",
+---         nvim = "github_dark_default"
+--- }
 --- @return table List of colorschemes that are available in both Neovim and Ghostty
 function M.get_overlap()
 	local nvim_colorschemes = get_nvim_colorschemes()
 	local ghostty_colorschemes = get_ghostty_colorschemes()
-	-- Create a set of ghostty_colorschemes
-	local ghostty_colorschemes_set = {}
-	for _, ghostty_value in ipairs(ghostty_colorschemes) do
-		ghostty_colorschemes_set[ghostty_value] = true
-	end
 
-	local overlap = {}
+	local alphanumeric_mappings = {}
+	for _, ghostty_value in ipairs(ghostty_colorschemes) do
+		local normalized = ghostty_value:lower():gsub("[^%w]", "")
+		alphanumeric_mappings[normalized] = { ghostty = ghostty_value }
+	end
 
 	for _, nvim_value in ipairs(nvim_colorschemes) do
-		-- Remove -, _ (Add more as needed)
-		local derived_ghostty_value = nvim_value
-		local to_replace = { "-", "_" }
-		for _, char in ipairs(to_replace) do
-			derived_ghostty_value = string.gsub(derived_ghostty_value, char, " ")
-		end
-		-- Capitalize all characters at beginning of word
-		derived_ghostty_value = derived_ghostty_value:gsub("(%a)([%w_']*)", function(first, rest)
-			return first:upper() .. rest
-		end)
-
-		-- Check if ghostty has the colorscheme
-		if ghostty_colorschemes_set[derived_ghostty_value] then
-			table.insert(overlap, { ghostty = derived_ghostty_value, nvim = nvim_value })
+		local normalized = nvim_value:lower():gsub("[^%w]", "")
+		if alphanumeric_mappings[normalized] then
+			alphanumeric_mappings[normalized].nvim = nvim_value
 		end
 	end
 
+	-- get those those without both nvim and ghostty
+	local overlap = {}
+	for _, mapping in pairs(alphanumeric_mappings) do
+		if mapping.nvim and mapping.ghostty then
+			table.insert(overlap, mapping)
+		end
+	end
 	return overlap
 end
 
@@ -150,7 +151,6 @@ end
 --- Opens a select menu to pick a theme to sync out of the valid options
 function M.pick_theme()
 	local themes = M.get_overlap()
-	print(themes)
 	vim.ui.select(themes, {
 		prompt = "Select a theme to sync:",
 		format_item = function(item)
