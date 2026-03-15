@@ -1,6 +1,7 @@
 # ghostty-theme-sync.nvim
 
 ### See Fork for more info
+Original Author: [landerson02](https://github.com/landerson02)
 
 A Neovim plugin allows you to synchronize themes between Neovim and [Ghostty](https://ghostty.org/), ensuring a consistent look between terminal and editor.
 
@@ -24,9 +25,6 @@ Use your favorite plugin manager, for example with [lazy.nvim](https://github.co
 Run the command `:GhosttyTheme` to open the theme selection menu.
 
 After selecting a new theme, you will need to refresh your ghostty config with `cmd+shift+,` or `ctrl+shift+,` on MacOS and Linux respectively.
-> [!WARNING]
-> Some ghostty themes have a slightly different name than its nvim counterpart, so there is a translation table in translations.lua.
-> If you find a theme that is not supported, please open an issue or a PR.
 
 ### Configuration
 The following options are the default:
@@ -48,3 +46,8 @@ The following options are the default:
   nvim_config_path = "",
 }
 ```
+
+### Changes
+Removed ghostty txt file and translastion table for auto translastion
+> [!WARNING]
+> Assumes any themes you use can be normalized to an alphanumeric version for auto-mapping
